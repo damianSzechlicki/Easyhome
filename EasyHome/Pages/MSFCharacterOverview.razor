@@ -1,0 +1,86 @@
+﻿@using EasyHome.Components
+@using EasyHome.Shared.MSF
+
+@page "/msf/character"
+
+
+<h3>Characters</h3>
+
+@if (Characters == null)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <DataGrid Items="Characters" TItem="MSFCharacterOverviewModel" RecordsOnPage="50" OrderBy="Favorite" OrderDirectory="Shared.Utilis.OrderDirectory.Desc" OnEditEvent="(e)=>EditEventAsync(e)">
+        <Columns>
+            <DataGridCol PropertyName="Favorite" TItem="MSFCharacterOverviewModel" Title="Fav" IsEdit="false" IsFilter="false" ColWidth="80">
+                <Content>
+                    @if (context.Favorite)
+                    {
+                        <span class="oi oi-check" style="color:green"></span>
+                    }
+                    else
+                    {
+                        <span class="oi oi-x" style="color:red"></span>
+                    }
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="Name" TItem="MSFCharacterOverviewModel">
+                <Content>
+                    <a href="MSF/Character/Edit/@context.ID">@context.Name</a>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="Power" TItem="MSFCharacterOverviewModel" ColWidth="100"></DataGridCol>
+            <DataGridCol PropertyName="Level" TItem="MSFCharacterOverviewModel" ColWidth="90"></DataGridCol>
+            <DataGridCol PropertyName="Tier" TItem="MSFCharacterOverviewModel" ColWidth="90"></DataGridCol>
+            <DataGridCol PropertyName="Star" TItem="MSFCharacterOverviewModel">
+                <Content>
+                    <MSFCharacterStar Star="context.Star" RedStar="context.RedStar"></MSFCharacterStar>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="BasicSkill" TItem="MSFCharacterOverviewModel" ColWidth="150">
+                <Content>
+                    <div class="msf-col-skill msf-skill-@context.BasicSkillColor">@context.BasicSkill</div>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="SpecialSkill" TItem="MSFCharacterOverviewModel" ColWidth="150">
+                <Content>
+                    <div class="msf-col-skill msf-skill-@context.SpecialSkillColor">@context.SpecialSkill</div>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="UltimateSkill" TItem="MSFCharacterOverviewModel" ColWidth="150">
+                <Content>
+                    <div class="msf-col-skill msf-skill-@context.UltimateSkillColor">@context.UltimateSkill</div>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="PassiveSkill" TItem="MSFCharacterOverviewModel" ColWidth="150">
+                <Content>
+                    <div class="msf-col-skill msf-skill-@context.PassiveSkillColor">@context.PassiveSkill</div>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="Shard" TItem="MSFCharacterOverviewModel" ColWidth="100" IsFilter="false" IsOrder="false">
+                <Content>
+                    <div class="msf-col-shard">
+                        @if (context.Star < 7)
+                        {
+                            <span>@context.Shard/@context.MaxShard</span>
+                        }
+                        else
+                        {
+                            <span>MAX</span>
+                        }
+                    </div>
+                </Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="Farmable" TItem="MSFCharacterOverviewModel" IsEdit="false" IsFilter="false" IsOrder="false">
+                <Content>
+                    @foreach (var item in context.Farmable)
+                    {
+                        <span>@item</span>
+                    }
+                </Content>
+            </DataGridCol>
+        </Columns>
+    </DataGrid>
+}

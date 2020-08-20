@@ -1,0 +1,94 @@
+﻿@using EasyHome.Components
+@inject IMSFTeamService _teamService
+@inject IMSFCharacterService _characterService
+@inject AutoMapper.IMapper _mapper
+
+@page "/msf/team"
+
+
+<h3>Teams</h3>
+
+@if (Teams == null)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <div class="row">
+        <div class="col-6">
+            <DataGrid Items="Teams" TItem="MSFTeamModel" OrderBy="Power" OrderDirectory="Shared.Utilis.OrderDirectory.Desc" RecordsOnPage="50">
+                <Columns>
+                    <DataGridCol PropertyName="Name" TItem="MSFTeamModel" ColWidth="200">
+                        <Content>
+                            <a href="MSF/Character/Edit/@context.ID">@context.Name</a>
+                        </Content>
+                    </DataGridCol>
+                    <DataGridCol PropertyName="Power" TItem="MSFTeamModel" ColWidth="100" IsEdit="false"></DataGridCol>
+                    <DataGridCol PropertyName="Characters" TItem="MSFTeamModel" IsEdit="false" IsOrder="false" IsFilter="false">
+                        <Content>
+                            <table class="table">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Level</th>
+                                    <th>Power</th>
+                                    <th>Tier</th>
+                                </tr>
+                                @foreach (var character in context.Characters)
+                                {
+                                    <tr>
+                                        <td>@character.Name</td>
+                                        <td>@character.Level</td>
+                                        <td>@character.Power</td>
+                                        <td>@character.Tier</td>
+                                    </tr>
+                                }
+                            </table>
+                        </Content>
+                    </DataGridCol>
+                </Columns>
+            </DataGrid>
+        </div>
+        <div class="col-6">
+            <table class="table">
+                <tr>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Power</th>
+                    <th>Tier</th>
+                </tr>
+                @foreach (var character in CharacterWithoutTeam)
+                {
+                    <tr>
+                        <td>@character.Name</td>
+                        <td>@character.Level</td>
+                        <td>@character.Power</td>
+                        <td>@character.Tier</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
+
+@code{
+
+    public List<MSFTeamModel> Teams { get; set; }
+    public List<MSFTeamCharacterModel> CharacterWithoutTeam { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var teams = await _teamService.GetAll();
+        Teams = _mapper.Map<List<MSFTeamModel>>(teams);
+
+        foreach (var team in Teams)
+        {
+            var characters = await _characterService.GetForTeam(team.ID);
+            team.Characters = _mapper.Map<List<MSFTeamCharacterModel>>(characters);
+        }
+
+        var charactersWithoutTeam = await _characterService.GetWithoutTeam();
+        CharacterWithoutTeam = _mapper.Map<List<MSFTeamCharacterModel>>(charactersWithoutTeam);
+
+    }
+
+}

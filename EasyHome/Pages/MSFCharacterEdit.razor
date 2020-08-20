@@ -1,0 +1,263 @@
+﻿@page "/MSF/Character/Edit"
+@page "/MSF/Character/Edit/{ID:int}"
+@using EasyHome.Data
+
+<h3>Edit</h3>
+
+@if (Character == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    if (!string.IsNullOrEmpty(Message))
+    {
+        <h2 class="alert-warning">@Message</h2>
+    }
+
+    <EditForm Model="Character" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-success edit-btn">Save</button>
+            </div>
+            <div class="col-sm-3">
+                <LabelCheckbox LabelClass="btn-primary btn-sm" Name="Available" Value="Character.Available" OnChangeItem="(v)=>Character.Available = Boolean.Parse(v.Value.ToString())"></LabelCheckbox>
+            </div>
+            <div class="col-sm-3">
+                <LabelCheckbox LabelClass="btn-primary btn-sm" Name="Favorite" Value="Character.Favorite" OnChangeItem="(v)=>Character.Favorite = Boolean.Parse(v.Value.ToString())"></LabelCheckbox>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <label class="col-sm-2 col-form-label" for="@Character.Name">Name</label>
+            <div class="col-sm-4">
+                <InputText Class="form-control" @bind-Value="@Character.Name" />
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.Level">Level</label>
+                    <div class="col-sm-6">
+                        <InputNumber Class="form-control" @bind-Value="@Character.Level" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.Power">Power</label>
+                    <div class="col-sm-5">
+                        <InputNumber Class="form-control" @bind-Value="@Character.Power" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.Star">Star</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.Star" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.Star++)">+1</button>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.RedStar">Red Star</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.RedStar" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.RedStar++)">+1</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.Tier">Tier</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.Tier" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.Tier++)">+1</button>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.Shard">Shard</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.Shard" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.Shard++)">+1</button>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.Shard+=5)">+5</button>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.Shard+=15)">+15</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.BasicSkill">Basic Skill</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.BasicSkill" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.BasicSkill++)">+1</button>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.SpecialSkill">Special Skill</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.SpecialSkill" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.SpecialSkill++)">+1</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.UltimateSkill">Ultimate Skill</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.UltimateSkill" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.UltimateSkill++)">+1</button>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row"><button type="button" class="btn btn-dark btn-sm m-1" @onclick="@(() => Character.UltimateSkill = null)">No skill</button></div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.PassiveSkill">Passive Skill</label>
+                    <div class="col-sm-4">
+                        <InputNumber Class="form-control" @bind-Value="@Character.PassiveSkill" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @onclick="@(() => Character.PassiveSkill++)">+1</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.Allegiance">Allegiance</label>
+                    <div class="col-sm-6">
+                        <InputSelect class="form-control" @bind-Value="Character.Allegiance">
+                            @foreach (var allegiance in (EasyHome.Shared.MSF.MSFAllegiance[])Enum.GetValues(typeof(EasyHome.Shared.MSF.MSFAllegiance)))
+                                {
+                                <option value="@allegiance">@allegiance.GetDisplayAttributeOrValue()</option>
+                                }
+                            /**/
+
+
+
+
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-5 col-form-label" for="@Character.Jurisdiction">Jurisdiction</label>
+                    <div class="col-sm-6">
+                        <InputSelect class="form-control" @bind-Value="Character.Jurisdiction">
+                            @foreach (var jurisdiction in (EasyHome.Shared.MSF.MSFJurisdiction[])Enum.GetValues(typeof(EasyHome.Shared.MSF.MSFJurisdiction)))
+                                {
+                                <option value="@jurisdiction">@jurisdiction.GetDisplayAttributeOrValue()</option>
+                                }
+                            /**/
+
+
+
+
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-6 col-form-label" for="@Character.Origin">Origin</label>
+                    <div class="col-sm-6">
+                        <InputSelect class="form-control" @bind-Value="Character.Origin">
+                            @foreach (var origin in (EasyHome.Shared.MSF.MSFOrigin[])Enum.GetValues(typeof(EasyHome.Shared.MSF.MSFOrigin)))
+                                {
+                                <option value="@origin">@origin.GetDisplayAttributeOrValue()</option>
+                                }
+                            /**/
+
+
+
+
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 offset-sm-2">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label" for="@Character.Class">Class</label>
+                    <div class="col-sm-5">
+                        <InputSelect class="form-control" @bind-Value="Character.Class">
+                            @foreach (var characterClass in (EasyHome.Shared.MSF.MSFCharacterClass[])Enum.GetValues(typeof(EasyHome.Shared.MSF.MSFCharacterClass)))
+                                {
+                                <option value="@characterClass">@characterClass.GetDisplayAttributeOrValue()</option>
+                                }
+                            /**/
+
+
+
+
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-6">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label" for="@Character.Organizations">Organizations</label>
+                    <div class="col-sm-8">
+                        <InputText Class="form-control" @bind-Value="@Character.Organizations" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-sm-6">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label" for="@Character.Extras">Extras</label>
+                    <div class="col-sm-8">
+                        <InputText Class="form-control" @bind-Value="@Character.Extras" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <div class="col-md-2">
+                <LabelCheckbox Value="@CampaignFarmable" Name="Campaign" LabelClass="btn-sm btn-secondary" OnChangeItem="CampaignFarmableChange"></LabelCheckbox>
+            </div>
+
+            <div class="col-md-2">
+                <LabelCheckbox Value="@BlitzFarmable" Name="Blitz" LabelClass="btn-sm msf-btn-blitz" OnChangeItem="BlitzFarmableChange"></LabelCheckbox>
+            </div>
+            <div class="col-md-2">
+                <LabelCheckbox Value="@ArenaFarmable" Name="Arena" LabelClass="btn-sm msf-btn-arena" OnChangeItem="ArenaFarmableChange"></LabelCheckbox>
+            </div>
+            <div class="col-md-2">
+                <LabelCheckbox Value="@RaidFarmable" Name="Raid" LabelClass="btn-sm msf-btn-raid" OnChangeItem="RaidFarmableChange"></LabelCheckbox>
+            </div>
+
+            <div class="col-md-2">
+                <LabelCheckbox Value="@WarFarmable" Name="War" LabelClass="btn-sm msf-btn-war" OnChangeItem="WarFarmableChange"></LabelCheckbox>
+            </div>
+        </div>
+    </EditForm>
+}

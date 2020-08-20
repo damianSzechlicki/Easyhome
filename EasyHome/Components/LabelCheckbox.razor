@@ -1,0 +1,44 @@
+﻿<label id="@Name" class="btn @LabelClass">
+    @Name
+    @if (Value)
+    {
+        <input checked type="checkbox" id="@Name" @onchange="@ChangeItem" />
+    }
+    else
+    {
+        <input type="checkbox" id="@Name" @onchange="@ChangeItem" />
+    }
+
+</label>
+
+
+@code {
+    [Parameter]
+    public bool Value { get; set; }
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChangeItem { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public string LabelClass { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(LabelClass))
+        {
+            LabelClass = "btn-info";
+        }
+    }
+
+    private void ChangeItem(ChangeEventArgs arg)
+    {
+        if (OnChangeItem.HasDelegate)
+        {
+            OnChangeItem.InvokeAsync(arg);
+        }
+        else
+        {
+            Value = Boolean.Parse(arg.Value.ToString());
+        }
+    }
+}

@@ -1,0 +1,9 @@
+﻿.data-grid-input
+{
+    min-width:50px;
+}
+.data-grid-pagination
+{
+    cursor:pointer;
+    margin: 0 5px;
+}

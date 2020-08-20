@@ -1,0 +1,28 @@
+﻿@using EasyHome.Components
+
+@page "/futplayer"
+
+
+<h3>FUTPlayer</h3>
+
+@if (Players == null)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <DataGrid Items="Players" TItem="FUTPlayerModel" OrderBy="Rating" OrderDirectory="Shared.Utilis.OrderDirectory.Desc" OnEditEvent="(e)=>EditEventAsync(e)">
+        <Columns>
+            <DataGridCol PropertyName="Name" TItem="FUTPlayerModel"></DataGridCol>
+            <DataGridCol PropertyName="InsertDate" TItem="FUTPlayerModel"></DataGridCol>
+            <DataGridCol PropertyName="Rating" TItem="FUTPlayerModel" ColWidth="100"></DataGridCol>
+            <DataGridCol PropertyName="Team" TItem="FUTPlayerModel"></DataGridCol>
+            <DataGridCol PropertyName="Nationality" TItem="FUTPlayerModel"></DataGridCol>
+            <DataGridCol PropertyName="League" TItem="FUTPlayerModel"></DataGridCol>
+            <DataGridCol PropertyName="LoyaltyBonus" Title="Loyalty" TItem="FUTPlayerModel">
+                <Content>@(context.LoyaltyBonus == 1)</Content>
+            </DataGridCol>
+            <DataGridCol PropertyName="Owners" TItem="FUTPlayerModel"></DataGridCol>
+        </Columns>
+    </DataGrid>
+}

@@ -1,0 +1,53 @@
+﻿@typeparam TItem
+
+@code{
+
+    [CascadingParameter] private DataGrid<TItem> DataGrid { get; set; }
+    [Parameter]
+    public RenderFragment<TItem> Content { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public bool Hidden { get; set; }
+    [Parameter]
+    public string PropertyName { get; set; }
+    [Parameter]
+    public string GridName { get; set; }
+    [Parameter]
+    public int ColWidth { get; set; }
+    [Parameter]
+    public string Format { get; set; }
+    [Parameter] public bool IsOrder { get; set; } = true;
+    [Parameter] public bool IsFilter { get; set; } = true;
+    [Parameter] public bool IsEdit { get; set; } = true;
+    public string Header { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Title == null)
+        {
+            Header = PropertyName;
+        }
+        else
+        {
+            Header = Title;
+        }
+
+        if (DataGrid != null)
+        {
+            DataGrid.AddCol(this);
+        }
+    }
+
+    public string GetWidth()
+    {
+        if(ColWidth == 0)
+        {
+            return string.Empty;
+        }
+        else
+        {
+            return $"width:{ColWidth}px;";
+        }
+    }
+}

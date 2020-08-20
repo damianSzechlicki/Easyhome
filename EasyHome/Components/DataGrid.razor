@@ -1,0 +1,468 @@
+﻿@typeparam TItem
+
+<CascadingValue Value="this">
+    <table class="table">
+        <tr>
+            @foreach (var col in Cols)
+            {
+                <th style="@col.GetWidth()">
+                    <div>
+                        <span>@col.Header</span>
+                        @if (col.IsOrder)
+                        {
+                            if (OrderBy != col.Header)
+                            {
+                                <span class="oi oi-list" style="cursor:pointer" @onclick="()=>Order(col.PropertyName, OrderDirectory)"></span>
+                            }
+                            else if (OrderDirectory == Shared.Utilis.OrderDirectory.Asc)
+                            {
+                                <span class="oi oi-sort-ascending" style="cursor:pointer" @onclick="()=>Order(OrderBy, Shared.Utilis.OrderDirectory.Desc)"></span>
+                            }
+                            else if (OrderDirectory == Shared.Utilis.OrderDirectory.Desc)
+                            {
+                                <span class="oi oi-sort-descending" style="cursor:pointer" @onclick="()=>Order(OrderBy, Shared.Utilis.OrderDirectory.Asc)"></span>
+                            }
+                        }
+                    </div>
+                    @if (col.IsFilter)
+                    {
+                        <div>
+                            @if (col.PropertyName != null && typeof(TItem).GetProperty(col.PropertyName) != null)
+                            {
+                            <label style="display:flex">
+                                @if (typeof(TItem).GetProperty(col.PropertyName).PropertyType.Name == "DateTime")
+                                {
+                                    <input style="width:100%" type="date" @onchange="(v=>Filter(v.Value.ToString(), col.PropertyName))" />
+                                }
+                                else if (typeof(TItem).GetProperty(col.PropertyName).PropertyType.Name == "Boolean")
+                                {
+                                    <input style="width:100%" type="checkbox" @onchange="(v=>Filter(v.Value.ToString(), col.PropertyName))" />
+                                }
+                                else
+                                {
+                                    <span class="oi oi-magnifying-glass" style="line-height:unset"></span>
+                                    <input style="width:100%" @onchange="(v=>Filter(v.Value.ToString(), col.PropertyName))" />
+                                }
+                            </label>
+                            }
+                        </div>
+                    }
+                </th>
+            }
+            @if (AvailableEdit)
+            {
+                <th></th>
+
+            }
+        </tr>
+        @foreach (var item in ItemsToShow)
+        {
+            if (item.Equals(EditItem))
+            {
+                <tr>
+                    @foreach (var col in Cols)
+                    {
+                    <td style="@col.GetWidth()">
+                        @if (col.IsEdit)
+                        {
+                            if (typeof(TItem).GetProperty(col.PropertyName).PropertyType.Name == "Boolean")
+                            {
+
+                                <input class="data-grid-input" type="checkbox" style="width:100%" value="@GenericType.GetProperty(col.PropertyName).GetValue(item)" @onchange="(v)=>SetValue(col.PropertyName,item,v.Value.ToString())" />
+                            }
+                            else
+                            {
+                                <input class="data-grid-input" style="width:100%" value="@GenericType.GetProperty(col.PropertyName).GetValue(item)" @onchange="(v)=>SetValue(col.PropertyName,item,v.Value.ToString())" />
+                            }
+                        }
+                        else
+                        {
+                            @if (col.Content != null)
+                            {
+                                @col.Content(item)
+                            }
+                            else if (col.PropertyName != null && GenericType.GetProperty(col.PropertyName) != null)
+                            {
+
+                                @GenericType.GetProperty(col.PropertyName).GetValue(item)
+                            }
+                        }
+                    </td>
+                    }
+                    <td>
+                        <span style="cursor:pointer; color:green;" class="oi oi-check" @onclick="()=>SaveEditEvent(item)"></span>
+                    </td>
+                </tr>
+            }
+            else
+            {
+
+                <tr>
+                    @foreach (var col in Cols)
+                    {
+                        <td style="width:@col.GetWidth()">
+                            @if (col.Content != null)
+                            {
+                                @col.Content(item)
+                            }
+                            else if (col.PropertyName != null && GenericType.GetProperty(col.PropertyName) != null)
+                            {
+
+                                @GenericType.GetProperty(col.PropertyName).GetValue(item)
+                            }
+                        </td>
+                    }
+                    @if (AvailableEdit)
+                    {
+                        <td><span style="cursor:pointer;" class="oi oi-pencil" @onclick="()=>Edit(item)"></span></td>
+                    }
+                </tr>
+            }
+
+        }
+
+    </table>
+    @if (TotalPages > 1)
+    {
+        <div style="text-align:right;">
+            @if (CurrentPage != 1)
+            {
+                <span class="data-grid-pagination" @onclick="()=>GetRecordsToPage(1)">1</span>
+            }
+            @if (PreviousPage > 1)
+            {
+                if (PreviousPage > 2)
+                {
+                    <span>...</span>
+                }
+                <span style="cursor:pointer;" @onclick="()=>GetRecordsToPage(PreviousPage)">@PreviousPage</span>
+            }
+            <span class="data-grid-pagination" @onclick="()=>GetRecordsToPage(CurrentPage)"><b>@CurrentPage</b></span>
+            @if (NextPage < TotalPages)
+            {
+
+                <span class="data-grid-pagination" @onclick="()=>GetRecordsToPage(NextPage)">@NextPage</span>
+                if (NextPage < TotalPages - 1)
+                {
+                    <span>...</span>
+                }
+            }
+            @if (CurrentPage != TotalPages)
+            {
+                <span class="data-grid-pagination" @onclick="()=>GetRecordsToPage(TotalPages)">@TotalPages</span>
+            }
+
+        </div>
+    }
+
+    @if (Columns != null)
+    {
+        @Columns
+    }
+
+</CascadingValue>
+
+@code{
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public RenderFragment Columns { get; set; }
+    [Parameter] public IEnumerable<TItem> Items { get; set; }
+    [Parameter] public string OrderBy { get; set; }
+    [Parameter] public EasyHome.Shared.Utilis.OrderDirectory OrderDirectory { get; set; }
+    [Parameter] public EventCallback<TItem> OnEditEvent { get; set; }
+    [Parameter] public int RecordsOnPage { get; set; }
+    [Parameter] public bool AvailableEdit { get; set; } = true;
+
+    public List<DataGridCol<TItem>> Cols { get; set; }
+    private Type GenericType { get => typeof(TItem); }
+    private IEnumerable<TItem> ItemsToShow { get; set; }
+    private IEnumerable<TItem> FilterItems { get; set; }
+    private TItem EditItem { get; set; }
+    private int TotalPages { get; set; }
+    private int CurrentPage { get; set; }
+    private int PreviousPage { get => CurrentPage - 1; }
+    private int NextPage { get => CurrentPage + 1; }
+    private string FilterValue { get; set; }
+    private string FilterProp { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        RecordsOnPage = RecordsOnPage == 0 ? 10 : RecordsOnPage;
+        TotalPages = (int)Math.Ceiling(Items.Count() / (decimal)RecordsOnPage);
+
+        Cols = new List<DataGridCol<TItem>>();
+
+        if (Columns == null)
+        {
+            GetCols();
+        }
+
+        if (!string.IsNullOrEmpty(OrderBy))
+        {
+            Order(OrderBy, OrderDirectory);
+        }
+    }
+
+    private async Task SaveEditEvent(TItem item)
+    {
+        if (OnEditEvent.HasDelegate)
+        {
+            await OnEditEvent.InvokeAsync(item);
+        }
+        EditItem = default(TItem);
+        StateHasChanged();
+    }
+
+    private void SetValue(string propName, TItem item, string value)
+    {
+        var prop = typeof(TItem).GetProperty(propName);
+        switch (prop.PropertyType.Name)
+        {
+            case "String":
+                GenericType.GetProperty(propName).SetValue(item, value);
+                break;
+            case "Int32":
+                Int32.TryParse(value, out int int32Value);
+
+                if (int32Value == 0 && value != "0")
+                {
+
+                }
+                else
+                {
+                    GenericType.GetProperty(propName).SetValue(item, int32Value);
+                }
+                break;
+            case "Int64":
+                Int64.TryParse(value, out long int64Value);
+
+                if (int64Value == 0 && value != "0")
+                {
+
+                }
+                else
+                {
+                    GenericType.GetProperty(propName).SetValue(item, int64Value);
+                }
+                break;
+            case "DateTime":
+                DateTime.TryParse(value, out DateTime dateTimeValue);
+                if (dateTimeValue.Year == 1)
+                {
+
+                }
+                else
+                {
+                    GenericType.GetProperty(propName).SetValue(item, dateTimeValue);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void Edit(TItem item)
+    {
+        EditItem = item;
+        StateHasChanged();
+    }
+
+    private void SaveEdit(TItem item)
+    {
+        EditItem = default(TItem);
+        StateHasChanged();
+    }
+
+    private void Order(string propName, Shared.Utilis.OrderDirectory directory)
+    {
+        OrderDirectory = directory;
+        OrderBy = propName;
+        var prop = typeof(TItem).GetProperty(OrderBy); ;
+
+        if (FilterItems == null)
+        {
+            FilterItems = Items;
+        }
+
+        switch (OrderDirectory)
+        {
+            case Shared.Utilis.OrderDirectory.Asc:
+                FilterItems = FilterItems.OrderBy(i => prop.GetValue(i, null));
+                break;
+            case Shared.Utilis.OrderDirectory.Desc:
+                FilterItems = FilterItems.OrderByDescending(i => prop.GetValue(i, null));
+                break;
+        }
+
+        GetRecordsToPage(1);
+        StateHasChanged();
+    }
+
+    private void Filter(string value, string propName)
+    {
+        FilterValue = value;
+        FilterProp = propName;
+        if (string.IsNullOrEmpty(value))
+        {
+            FilterItems = Items;
+        }
+        else
+        {
+            var prop = typeof(TItem).GetProperty(propName);
+            var symbol = "=";
+
+            switch (prop.PropertyType.Name)
+            {
+                case "String":
+                    FilterItems = Items.Where(i => prop.GetValue(i, null) != null ? prop.GetValue(i, null).ToString().ToLower().Contains(value.ToLower()) : false);
+                    break;
+                case "Int32":
+                    if (value.Contains(">="))
+                    {
+                        symbol = ">=";
+                    }
+                    else if (value.Contains("<="))
+                    {
+                        symbol = "<=";
+                    }
+                    else if (value.Contains(">"))
+                    {
+                        symbol = ">";
+                    }
+
+                    else if (value.Contains("<"))
+                    {
+                        symbol = "<";
+                    }
+
+
+                    value = value.Replace(symbol, "");
+                    Int32.TryParse(value, out int int32Value);
+
+                    if (int32Value == 0 && value != "0")
+                    {
+                        FilterItems = Items;
+                    }
+                    else
+                    {
+                        switch (symbol)
+                        {
+                            case "=":
+                                FilterItems = Items.Where(i => (Int32)prop.GetValue(i, null) == int32Value);
+                                break;
+                            case ">":
+                                FilterItems = Items.Where(i => (Int32)prop.GetValue(i, null) > int32Value);
+                                break;
+                            case ">=":
+                                FilterItems = Items.Where(i => (Int32)prop.GetValue(i, null) >= int32Value);
+                                break;
+                            case "<":
+                                FilterItems = Items.Where(i => (Int32)prop.GetValue(i, null) < int32Value);
+                                break;
+                            case "<=":
+                                FilterItems = Items.Where(i => (Int32)prop.GetValue(i, null) <= int32Value);
+                                break;
+                        }
+                    }
+                    break;
+                case "Int64":
+
+
+                    if (value.Contains(">="))
+                    {
+                        symbol = ">=";
+                    }
+                    else if (value.Contains("<="))
+                    {
+                        symbol = "<=";
+                    }
+                    else if (value.Contains(">"))
+                    {
+                        symbol = ">";
+                    }
+                    else if (value.Contains("<"))
+                    {
+                        symbol = "<";
+                    }
+
+
+                    value = value.Replace(symbol, "");
+                    Int64.TryParse(value, out long int64Value);
+
+                    if (int64Value == 0 && value != "0")
+                    {
+                        FilterItems = Items;
+                    }
+                    else
+                    {
+                        switch (symbol)
+                        {
+                            case "=":
+                                FilterItems = Items.Where(i => (Int64)prop.GetValue(i, null) == int64Value);
+                                break;
+                            case ">":
+                                FilterItems = Items.Where(i => (Int64)prop.GetValue(i, null) > int64Value);
+                                break;
+                            case ">=":
+                                FilterItems = Items.Where(i => (Int64)prop.GetValue(i, null) >= int64Value);
+                                break;
+                            case "<":
+                                FilterItems = Items.Where(i => (Int64)prop.GetValue(i, null) < int64Value);
+                                break;
+                            case "<=":
+                                FilterItems = Items.Where(i => (Int64)prop.GetValue(i, null) <= int64Value);
+                                break;
+                        }
+                    }
+                    break;
+                case "DateTime":
+                    DateTime.TryParse(value, out DateTime dateTimeValue);
+                    if (dateTimeValue.Year == 1)
+                    {
+                        FilterItems = Items;
+                    }
+                    else
+                    {
+                        FilterItems = Items.Where(i => ((DateTime)prop.GetValue(i, null)).Date == dateTimeValue.Date);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        TotalPages = (int)Math.Ceiling(FilterItems.Count() / (decimal)RecordsOnPage);
+        Order(OrderBy, OrderDirectory);
+        StateHasChanged();
+    }
+
+    protected void GetRecordsToPage(int pageNumber)
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage = 1;
+        }
+
+        if (FilterItems != null)
+        {
+            ItemsToShow = FilterItems.Skip((pageNumber - 1) * RecordsOnPage).Take(RecordsOnPage);
+        }
+        else
+        {
+            ItemsToShow = Items.Skip((pageNumber - 1) * RecordsOnPage).Take(RecordsOnPage);
+        }
+
+        CurrentPage = pageNumber;
+        StateHasChanged();
+    }
+
+    public void AddCol(DataGridCol<TItem> col)
+    {
+        Cols.Add(col);
+        StateHasChanged();
+    }
+
+    private void GetCols()
+    {
+    }
+}

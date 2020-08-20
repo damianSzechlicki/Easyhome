@@ -1,0 +1,46 @@
+﻿@if (Star == 0 && RedStar == 0)
+{
+    <span>☆</span>
+}
+else if (Star == 0 && RedStar > 0)
+{
+    <span style="color:red;">☆</span>
+
+}
+else if (Star > 0 && RedStar == 0)
+{
+    <span>★</span>
+}
+else if (Star > 0 && RedStar > 0)
+{
+    <span style="color:red;">★</span>
+}
+
+@for (int i = 2; i <= 7; i++)
+{
+
+    if (Star < i && RedStar < i)
+    {
+        <span>☆</span>
+    }
+    else if (Star < i && RedStar >= i)
+    {
+        <span style="color:red;">☆</span>
+
+    }
+    else if (Star >= i && RedStar < i)
+    {
+        <span>★</span>
+    }
+    else if (Star >= i && RedStar >= i)
+    {
+        <span style="color:red;">★</span>
+    }
+}
+
+@code {
+    [Parameter]
+    public int Star { get; set; }
+    [Parameter]
+    public int RedStar { get; set; }
+}
