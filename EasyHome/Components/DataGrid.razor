@@ -97,7 +97,7 @@
             else
             {
 
-                <tr>
+                <tr class="test" @attributes="AdditionalAttributes">
                     @foreach (var col in Cols)
                     {
                         <td style="width:@col.GetWidth()">
@@ -171,6 +171,7 @@
     [Parameter] public EventCallback<TItem> OnEditEvent { get; set; }
     [Parameter] public int RecordsOnPage { get; set; }
     [Parameter] public bool AvailableEdit { get; set; } = true;
+    [Parameter] public Dictionary<string, object> AdditionalAttributes { get; set; }
 
     public List<DataGridCol<TItem>> Cols { get; set; }
     private Type GenericType { get => typeof(TItem); }

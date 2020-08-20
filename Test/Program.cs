@@ -24,10 +24,28 @@ namespace Test
 
         static async System.Threading.Tasks.Task Main(string[] args)
         {
-            var pathCharacter = "Files/Characters.csv";
-            var pathTeam = "Files/Characters.csv";
+            var pathCharacter = @"C:\Users\dszechlicki\source\Workspace\Easyhome\Test\Files\Characters.csv";
+            var pathTeam = @"C:\Users\dszechlicki\source\Workspace\Easyhome\Test\Files\Team.csv";
 
             await CreateCharacterFile(pathCharacter);
+            await CreateTeamFile(pathTeam);
+        }
+
+        public static async Task CreateTeamFile(string path)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<EasyHomeDbContext>();
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Easyhome;Trusted_Connection=True;MultipleActiveResultSets=true");
+            var dbContext = new EasyHomeDbContext(optionsBuilder.Options);
+
+
+            var characterRepository = new MSFTeamRepository(dbContext);
+            var characters = await characterRepository.GetAll();
+            var text = ToCsv<MSFTeam>(";", characters);
+
+            using (var reader = new StreamWriter(path, false))
+            {
+                reader.Write(text);
+            }
         }
 
         public static async Task CreateCharacterFile(string path)
@@ -41,12 +59,16 @@ namespace Test
             var characters = await characterRepository.GetAll();
             var text = ToCsv<MSFCharacter>(";", characters);
 
+            using (var reader = new StreamWriter(path, false))
+            {
+                reader.Write(text);
+            }
         }
 
         public static string ToCsv<T>(string separator, IEnumerable<T> objectlist)
         {
             Type t = typeof(T);
-            FieldInfo[] fields = t.GetFields();
+            var fields = t.GetProperties();
 
             string header = String.Join(separator, fields.Select(f => f.Name).ToArray());
 
@@ -59,7 +81,7 @@ namespace Test
             return csvdata.ToString();
         }
 
-        public static string ToCsvFields(string separator, FieldInfo[] fields, object o)
+        public static string ToCsvFields(string separator, PropertyInfo[] fields, object o)
         {
             StringBuilder linie = new StringBuilder();
 
@@ -85,7 +107,7 @@ namespace Test
                 optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Easyhome;Trusted_Connection=True;MultipleActiveResultSets=true");
                 var dbContext = new EasyHomeDbContext(optionsBuilder.Options);
 
-                
+
                 var characterRepository = new MSFCharacterRepository(dbContext);
                 var organizationRepository = new MSFCharacterOrganizationRepository(dbContext);
                 var organizations = await organizationRepository.GetAll();

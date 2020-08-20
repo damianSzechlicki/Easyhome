@@ -16,7 +16,7 @@ else
 {
     <div class="row">
         <div class="col-6">
-            <DataGrid Items="Teams" TItem="MSFTeamModel" OrderBy="Power" OrderDirectory="Shared.Utilis.OrderDirectory.Desc" RecordsOnPage="50">
+            <DataGrid Items="Teams" TItem="MSFTeamModel" OrderBy="Power" OrderDirectory="Shared.Utilis.OrderDirectory.Desc" RecordsOnPage="50" AdditionalAttributes="Attributes">
                 <Columns>
                     <DataGridCol PropertyName="Name" TItem="MSFTeamModel" ColWidth="200">
                         <Content>
@@ -32,6 +32,7 @@ else
                                     <th>Level</th>
                                     <th>Power</th>
                                     <th>Tier</th>
+                                    <th></th>
                                 </tr>
                                 @foreach (var character in context.Characters)
                                 {
@@ -40,6 +41,7 @@ else
                                         <td>@character.Level</td>
                                         <td>@character.Power</td>
                                         <td>@character.Tier</td>
+                                        <td><span class="oi oi-delete" style="cursor:pointer;" @onclick="()=>RemoveCharacterFromTeam(character.ID)"></span></td>
                                     </tr>
                                 }
                             </table>
@@ -58,7 +60,7 @@ else
                 </tr>
                 @foreach (var character in CharacterWithoutTeam)
                 {
-                    <tr>
+                    <tr draggable="true" dropzone="true" @ondragleave="()=>character.Power = 0">
                         <td>@character.Name</td>
                         <td>@character.Level</td>
                         <td>@character.Power</td>
@@ -75,6 +77,8 @@ else
     public List<MSFTeamModel> Teams { get; set; }
     public List<MSFTeamCharacterModel> CharacterWithoutTeam { get; set; }
 
+    private Dictionary<string, object> Attributes = new Dictionary<string, object> {{ "class", "test2" },{"dragzone",true } };
+
     protected override async Task OnInitializedAsync()
     {
         var teams = await _teamService.GetAll();
@@ -88,7 +92,15 @@ else
 
         var charactersWithoutTeam = await _characterService.GetWithoutTeam();
         CharacterWithoutTeam = _mapper.Map<List<MSFTeamCharacterModel>>(charactersWithoutTeam);
+    }
 
+    private async Task RemoveCharacterFromTeam(int characterID)
+    {
+        var character = await _characterService.GetByID(characterID);
+        character.TeamID = 0;
+        await _characterService.Update(character);
+
+        StateHasChanged();
     }
 
 }

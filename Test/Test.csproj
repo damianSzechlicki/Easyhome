@@ -16,13 +16,4 @@
     <ProjectReference Include="..\EasyHome.Shared\EasyHome.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Files\Teams.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Files\Characters.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
